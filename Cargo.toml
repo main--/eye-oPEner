@@ -4,7 +4,7 @@ version = "0.1.0"
 authors = ["main() <main@ehvag.de>"]
 
 [dependencies]
-pe = { path = "../pe-rs" }
+pe = { git = "https://github.com/main--/pe-rs.git" }
 libc = "0.2"
 widestring = "0.2"
 lazy_static = "0.2"

@@ -3,10 +3,9 @@ use std::{ptr, mem, io, slice};
 use std::collections::HashMap;
 use std::os::unix::io::{RawFd, AsRawFd};
 
-use pe::{Pe, PeOptionalHeader, AsOsStr, RVA, ExportAddress, Error as PeError, Result as PeResult};
+use pe::{Pe, PeOptionalHeader, AsOsStr, RVA, URP, ExportAddress, Error as PeError, Result as PeResult};
 use pe::types::{ImportDirectory, ImageThunkData, PeOptionalHeader64};
 use pe::types::section_characteristics::*;
-use pe::URP;
 use libc::{self, MAP_PRIVATE, MAP_ANONYMOUS, MAP_FIXED, c_void, c_int, PROT_EXEC, PROT_WRITE, PROT_READ};
 
 use winapi::WINAPI;

@@ -17,9 +17,11 @@ macro_rules! impl_winapi {
             unsafe extern "win64" fn $name ( $($pn : $t),* ) -> $ret {
                 print!("{}(", stringify!($name));
                 $( print!("{:?}, ", $pn); )*;
-                println!(")");
+                print!(") = ");
 
-                $body
+                let res = ( move || $body )();
+                println!("{:?}", res);
+                res
             }
         )+
 

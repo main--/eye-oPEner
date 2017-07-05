@@ -1,14 +1,14 @@
-use rand;
 use std::{mem, slice};
 use std::sync::Mutex;
 
 use libc::{self, c_void, c_char};
-use rand::Rng;
+use rand::{self, Rng};
+
+use self::string::{Lpcstr, Lpcwstr};
+use pe_loader::ExportTable;
 
 mod string;
-use self::string::{Lpcstr, Lpcwstr};
 
-use pe_loader::ExportTable;
 
 macro_rules! impl_winapi {
     ( $( fn $name:ident ( $($pn:ident : $t:ty),* ) -> $ret:ty $body:block )+ ) => (
@@ -203,11 +203,16 @@ impl_winapi! {
     }
 
     fn GetProcAddress(handle: usize, proc_name: Lpcstr) -> u64 {
+        unsafe extern "win64" fn unknown_import_stub() -> ! {
+            println!("Attempted to call unknown DYNAMIC import. Aborting.");
+            libc::abort();
+        }
+
         let name = proc_name.load().and_then(|x| x.to_str().ok()).unwrap();
         if let Some(&x) = WINAPI.get(name) {
             x
         } else if handle == 1 {
-            0xadead1dea
+            unknown_import_stub as u64
         } else if let Some(&x) = COREFP.lock().unwrap().as_ref().unwrap().get(name) {
             x
         } else {

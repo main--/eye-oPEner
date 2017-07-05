@@ -9,22 +9,23 @@ extern crate reqwest;
 extern crate plist;
 extern crate base64;
 
-mod write_buffer;
-mod plistutil;
-mod winapi;
-mod pe_loader;
+use std::io::{Read, Cursor};
+use std::{ptr, mem, slice};
+use std::collections::BTreeMap;
+
+use reqwest::Client as HttpClient;
+use plist::Plist;
 
 use write_buffer::WriteBuffer;
 use winapi::COREFP;
 use pe_loader::load_pe;
 use plistutil::ser_plist;
 
-use reqwest::Client as HttpClient;
-use plist::Plist;
+mod write_buffer;
+mod plistutil;
+mod winapi;
+mod pe_loader;
 
-use std::io::{Read, Cursor};
-use std::{ptr, mem, slice};
-use std::collections::BTreeMap;
 
 
 pub type DllEntryPoint = extern "win64" fn(*mut (), u32, *mut ());

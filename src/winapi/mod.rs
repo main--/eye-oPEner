@@ -1,8 +1,11 @@
 use std::{mem, slice};
 use std::sync::Mutex;
+use std::collections::HashMap;
+use std::fmt::Write;
 
 use libc::{self, c_void, c_char};
 use rand::{self, Rng};
+use log::LogLevel;
 
 use self::string::{Lpcstr, Lpcwstr};
 use pe_loader::ExportTable;
@@ -15,19 +18,22 @@ macro_rules! impl_winapi {
         $(
             #[allow(non_snake_case)]
             unsafe extern "win64" fn $name ( $($pn : $t),* ) -> $ret {
-                print!("{}(", stringify!($name));
-                $( print!("{:?}, ", $pn); )*;
-                print!(") = ");
+                let mut logmsg = String::new();
+                if log_enabled!(LogLevel::Trace) {
+                    write!(logmsg, "{}(", stringify!($name)).unwrap();
+                    $( write!(logmsg, "{:?}, ", $pn).unwrap(); )*;
+                    write!(logmsg, ") = ").unwrap();
+                }
 
                 let res = ( move || $body )();
-                println!("{:?}", res);
+                trace!("{}{:?}", logmsg, res);
                 res
             }
         )+
 
         lazy_static! {
-            pub static ref WINAPI: ::std::collections::HashMap<&'static str, u64> = {
-                let mut map = ::std::collections::HashMap::new();
+            pub static ref WINAPI: HashMap<&'static str, u64> = {
+                let mut map = HashMap::new();
                 $( map.insert(stringify!($name), $name as u64); )+;
                 map
             };
@@ -206,7 +212,7 @@ impl_winapi! {
 
     fn GetProcAddress(handle: usize, proc_name: Lpcstr) -> u64 {
         unsafe extern "win64" fn unknown_import_stub() -> ! {
-            println!("Attempted to call unknown DYNAMIC import. Aborting.");
+            error!("Attempted to call unknown DYNAMIC import. Aborting.");
             libc::abort();
         }
 

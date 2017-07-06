@@ -12,3 +12,8 @@ rand = "0.3"
 reqwest = "0.6"
 plist = "0.2"
 base64 = "0.6"
+log = "0.3"
+error-chain = "0.10"
+
+[dev-dependencies]
+env_logger = "0.4"
